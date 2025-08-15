@@ -1,0 +1,58 @@
+apiVersion: templates.gatekeeper.sh/v1beta1
+kind: ConstraintTemplate
+metadata:
+  name: requiresignedimages
+spec:
+  crd:
+    spec:
+      names:
+        kind: RequireSignedImages
+      validation:
+        openAPIV3Schema:
+          type: object
+          properties:
+            trustedKeys:
+              type: array
+              items:
+                type: string
+  targets:
+    - target: admission.k8s.gatekeeper.sh
+      rego: |
+        package requiresignedimages
+
+        violation[{"msg": msg}] {
+          container := input.review.object.spec.containers[_]
+          not is_signed(container.image)
+          msg := sprintf("Container image '%v' is not signed", [container.image])
+        }
+
+        violation[{"msg": msg}] {
+          container := input.review.object.spec.initContainers[_]
+          not is_signed(container.image)
+          msg := sprintf("Init container image '%v' is not signed", [container.image])
+        }
+
+        is_signed(image) {
+          # For demo purposes, allow localhost registry images
+          startswith(image, "localhost:")
+        }
+
+        is_signed(image) {
+          # Allow signed images (this would integrate with cosign verification)
+          contains(image, "@sha256:")
+        }
+
+---
+apiVersion: constraints.gatekeeper.sh/v1beta1
+kind: RequireSignedImages
+metadata:
+  name: must-be-signed
+spec:
+  match:
+    kinds:
+      - apiGroups: ["apps"]
+        kinds: ["Deployment", "ReplicaSet", "DaemonSet", "StatefulSet"]
+      - apiGroups: [""]
+        kinds: ["Pod"]
+  parameters:
+    trustedKeys: []
