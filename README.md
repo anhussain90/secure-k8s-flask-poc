@@ -1,6 +1,6 @@
-# Secure-by-Default Flask API on Kubernetes
+# Secure Flask API on Kubernetes
 
-A production-ready PoC demonstrating secure CI/CD practices for deploying a minimal Flask API to Kubernetes with comprehensive security scanning, signing, and policy enforcement.
+A PoC demonstrating secure CI/CD practices for deploying a minimal Flask API to Kubernetes with comprehensive security scanning, signing, and policy enforcement.
 
 ## 🎯 Project Goals
 
