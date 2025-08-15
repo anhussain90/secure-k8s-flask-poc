@@ -1,0 +1,15 @@
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Allowlist for test files and examples"
+paths = [
+  '''.*test.*''',
+  '''.*example.*''',
+  '''.*\.md$''',
+]
+
+regexes = [
+  '''(?i)password.*=.*test''',
+  '''(?i)key.*=.*example''',
+]
