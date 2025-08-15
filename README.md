@@ -33,7 +33,14 @@ GitHub → Security Scan → Build → Sign → Deploy → Runtime Verification
 - AWS CLI configured (for ECR/KMS) OR local setup
 - kubectl and helm installed
 
-### 1. Setup Infrastructure
+### 1. Setup Git Hooks
+
+```bash
+# Install git hooks for security checks
+./scripts/setup-git-hooks.sh
+```
+
+### 2. Setup Infrastructure
 
 ```bash
 # For AWS setup
@@ -46,13 +53,13 @@ terraform apply
 ./scripts/setup-local.sh
 ```
 
-### 2. Deploy Security Policies
+### 3. Deploy Security Policies
 
 ```bash
 kubectl apply -f k8s/policies/
 ```
 
-### 3. Build and Deploy
+### 4. Build and Deploy
 
 ```bash
 # Trigger CI/CD pipeline
@@ -79,6 +86,7 @@ secure-k8s-flask-poc/
 ├── .github/              # CI/CD workflows
 │   └── workflows/        # Security-focused pipelines
 ├── scripts/              # Automation scripts
+├── git-hooks/            # Git hook templates
 ├── docs/                 # Runbooks and documentation
 └── audit/               # Audit reports and metrics
 ```
@@ -122,6 +130,25 @@ secure-k8s-flask-poc/
 - [Security Updates](docs/runbooks/security-updates.md)
 - [Policy Management](docs/runbooks/policy-management.md)
 - [Audit Procedures](docs/runbooks/audit-procedures.md)
+
+## 🪝 Git Hooks
+
+### Security Hooks
+- **Pre-commit**: Secret scanning, YAML linting, Python formatting, Dockerfile security
+- **Post-commit**: Audit logging, security scanning, compliance tracking
+
+### Setup
+```bash
+./scripts/setup-git-hooks.sh
+```
+
+### Required Tools
+- `gitleaks`: Secret scanning
+- `yamllint`: YAML validation
+- `black`: Python formatting
+- `hadolint`: Dockerfile linting
+- `trivy`: Security scanning
+- `jq`: JSON processing
 
 ## 🔧 Configuration
 

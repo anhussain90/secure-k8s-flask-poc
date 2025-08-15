@@ -1,0 +1,43 @@
+#!/bin/bash
+# Pre-commit hook for secure Kubernetes Flask PoC
+
+set -e
+
+echo "🔍 Running pre-commit security checks..."
+
+# Check for secrets in staged files
+if command -v gitleaks &> /dev/null; then
+    echo "🔐 Scanning for secrets..."
+    gitleaks detect --staged --verbose --no-git
+else
+    echo "⚠️  gitleaks not installed, skipping secret scan"
+fi
+
+# Lint YAML files
+if command -v yamllint &> /dev/null; then
+    echo "📝 Linting YAML files..."
+    yamllint k8s/ .github/ || echo "⚠️  YAML linting issues found"
+else
+    echo "⚠️  yamllint not installed, skipping YAML lint"
+fi
+
+# Format Python code
+if command -v black &> /dev/null; then
+    echo "🐍 Checking Python formatting..."
+    black --check app/ || {
+        echo "❌ Python code not formatted. Run: black app/"
+        exit 1
+    }
+else
+    echo "⚠️  black not installed, skipping Python format check"
+fi
+
+# Check Dockerfile security
+if command -v hadolint &> /dev/null; then
+    echo "🐳 Checking Dockerfile security..."
+    hadolint app/Dockerfile || echo "⚠️  Dockerfile issues found"
+else
+    echo "⚠️  hadolint not installed, skipping Dockerfile check"
+fi
+
+echo "✅ Pre-commit checks completed"

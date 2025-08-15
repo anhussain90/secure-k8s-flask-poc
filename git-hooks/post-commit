@@ -1,0 +1,50 @@
+#!/bin/bash
+# Post-commit hook for secure Kubernetes Flask PoC
+
+set -e
+
+echo "📊 Running post-commit security audit..."
+
+# Get commit info
+COMMIT_HASH=$(git rev-parse HEAD)
+COMMIT_MSG=$(git log -1 --pretty=%B)
+AUTHOR=$(git log -1 --pretty=%an)
+TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+
+# Create audit entry
+AUDIT_DIR="audit/commits"
+mkdir -p "$AUDIT_DIR"
+
+AUDIT_FILE="$AUDIT_DIR/$(date +%Y-%m).json"
+
+# Initialize audit file if it doesn't exist
+if [ ! -f "$AUDIT_FILE" ]; then
+    echo "[]" > "$AUDIT_FILE"
+fi
+
+# Add commit entry to audit log
+TEMP_FILE=$(mktemp)
+jq --arg hash "$COMMIT_HASH" \
+   --arg msg "$COMMIT_MSG" \
+   --arg author "$AUTHOR" \
+   --arg timestamp "$TIMESTAMP" \
+   '. += [{
+     "commit": $hash,
+     "message": $msg,
+     "author": $author,
+     "timestamp": $timestamp,
+     "files_changed": []
+   }]' "$AUDIT_FILE" > "$TEMP_FILE" && mv "$TEMP_FILE" "$AUDIT_FILE" 2>/dev/null || {
+    # Fallback if jq is not available
+    echo "⚠️  jq not installed, creating simple audit log"
+    echo "$TIMESTAMP - $COMMIT_HASH - $AUTHOR - $COMMIT_MSG" >> "$AUDIT_DIR/commits.log"
+}
+
+# Run security scan on changed files (if tools available)
+if command -v trivy &> /dev/null; then
+    echo "🔍 Running security scan on repository..."
+    trivy fs . --format json --output "audit/scans/post-commit-$(date +%Y%m%d-%H%M%S).json" 2>/dev/null || true
+fi
+
+echo "✅ Post-commit audit completed"
+echo "📝 Commit $COMMIT_HASH logged to audit trail"
