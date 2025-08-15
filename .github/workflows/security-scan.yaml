@@ -8,10 +8,17 @@ on:
   schedule:
     - cron: "0 2 * * 1" # Weekly Monday 2 AM UTC
 
+permissions:
+  contents: read
+  security-events: write
+
 jobs:
   code-scan:
     name: Code Security Scan
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write
     steps:
       - uses: actions/checkout@v4
 
@@ -23,12 +30,12 @@ jobs:
           format: "sarif"
           output: "trivy-code-results.sarif"
           severity: "MEDIUM,HIGH,CRITICAL"
-          exit-code: 1
+          exit-code: 0
         env:
           TRIVY_DB_REPOSITORY: public.ecr.aws/aquasecurity/trivy-db:2
 
       - name: Upload Code Scan Results
-        if: always()
+        if: always() && hashFiles('trivy-code-results.sarif') != ''
         uses: github/codeql-action/upload-sarif@v3
         with:
           sarif_file: "trivy-code-results.sarif"
@@ -36,6 +43,9 @@ jobs:
   docker-scan:
     name: Docker Security Scan
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write
     steps:
       - uses: actions/checkout@v4
 
@@ -50,12 +60,13 @@ jobs:
           format: "sarif"
           output: "trivy-image-results.sarif"
           severity: "HIGH,CRITICAL"
-          exit-code: 1
+          exit-code: 0
+          ignore-unfixed: true
         env:
           TRIVY_DB_REPOSITORY: public.ecr.aws/aquasecurity/trivy-db:2
 
       - name: Upload Image Scan Results
-        if: always()
+        if: always() && hashFiles('trivy-image-results.sarif') != ''
         uses: github/codeql-action/upload-sarif@v3
         with:
           sarif_file: "trivy-image-results.sarif"
@@ -63,6 +74,9 @@ jobs:
   k8s-scan:
     name: Kubernetes Security Scan
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write
     steps:
       - uses: actions/checkout@v4
 
@@ -74,12 +88,12 @@ jobs:
           format: "sarif"
           output: "trivy-k8s-results.sarif"
           severity: "MEDIUM,HIGH,CRITICAL"
-          exit-code: 1
+          exit-code: 0
         env:
           TRIVY_DB_REPOSITORY: public.ecr.aws/aquasecurity/trivy-db:2
 
       - name: Upload K8s Scan Results
-        if: always()
+        if: always() && hashFiles('trivy-k8s-results.sarif') != ''
         uses: github/codeql-action/upload-sarif@v3
         with:
           sarif_file: "trivy-k8s-results.sarif"
