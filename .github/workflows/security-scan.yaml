@@ -1,0 +1,85 @@
+name: Security Scan
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+  schedule:
+    - cron: "0 2 * * 1" # Weekly Monday 2 AM UTC
+
+jobs:
+  code-scan:
+    name: Code Security Scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run Trivy Code Scan
+        uses: aquasecurity/trivy-action@0.29.0
+        with:
+          scan-type: "fs"
+          scan-ref: "."
+          format: "sarif"
+          output: "trivy-code-results.sarif"
+          severity: "MEDIUM,HIGH,CRITICAL"
+          exit-code: 1
+        env:
+          TRIVY_DB_REPOSITORY: public.ecr.aws/aquasecurity/trivy-db:2
+
+      - name: Upload Code Scan Results
+        if: always()
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: "trivy-code-results.sarif"
+
+  docker-scan:
+    name: Docker Security Scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build Docker Image
+        run: |
+          docker build -t secure-flask-poc:${{ github.sha }} ./app
+
+      - name: Run Trivy Image Scan
+        uses: aquasecurity/trivy-action@0.29.0
+        with:
+          image-ref: "secure-flask-poc:${{ github.sha }}"
+          format: "sarif"
+          output: "trivy-image-results.sarif"
+          severity: "HIGH,CRITICAL"
+          exit-code: 1
+        env:
+          TRIVY_DB_REPOSITORY: public.ecr.aws/aquasecurity/trivy-db:2
+
+      - name: Upload Image Scan Results
+        if: always()
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: "trivy-image-results.sarif"
+
+  k8s-scan:
+    name: Kubernetes Security Scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run Trivy K8s Scan
+        uses: aquasecurity/trivy-action@0.29.0
+        with:
+          scan-type: "config"
+          scan-ref: "k8s/"
+          format: "sarif"
+          output: "trivy-k8s-results.sarif"
+          severity: "MEDIUM,HIGH,CRITICAL"
+          exit-code: 1
+        env:
+          TRIVY_DB_REPOSITORY: public.ecr.aws/aquasecurity/trivy-db:2
+
+      - name: Upload K8s Scan Results
+        if: always()
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: "trivy-k8s-results.sarif"
