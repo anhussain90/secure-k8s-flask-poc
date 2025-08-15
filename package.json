@@ -1,0 +1,26 @@
+{
+  "name": "secure-k8s-flask-poc",
+  "version": "1.0.0",
+  "description": "Secure Flask API on Kubernetes PoC",
+  "private": true,
+  "scripts": {
+    "prepare": "husky install",
+    "lint": "yamllint k8s/ .github/",
+    "format": "prettier --write .",
+    "security-check": "gitleaks detect --verbose"
+  },
+  "devDependencies": {
+    "@commitlint/cli": "^18.4.3",
+    "@commitlint/config-conventional": "^18.4.3",
+    "husky": "^8.0.3",
+    "prettier": "^3.1.0"
+  },
+  "keywords": [
+    "kubernetes",
+    "security",
+    "flask",
+    "devsecops",
+    "poc"
+  ],
+  "license": "MIT"
+}

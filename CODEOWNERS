@@ -1,0 +1,23 @@
+# Global ownership
+* @secure-k8s-maintainers
+
+<!-- # Application code
+/app/ @secure-k8s-maintainers @app-developers
+
+# Kubernetes manifests
+/k8s/ @secure-k8s-maintainers @platform-team
+
+# Infrastructure
+/infra/ @secure-k8s-maintainers @platform-team
+
+# Security policies
+/k8s/policies/ @security-team @platform-team
+
+# CI/CD workflows
+/.github/ @secure-k8s-maintainers @platform-team
+
+# Documentation
+/docs/ @secure-k8s-maintainers
+
+# Scripts
+/scripts/ @secure-k8s-maintainers @platform-team -->
