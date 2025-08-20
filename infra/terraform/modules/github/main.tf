@@ -86,6 +86,28 @@ resource "aws_iam_policy" "terraform_policy" {
           "sts:GetCallerIdentity"
         ]
         Resource = "*"
+      },
+      {
+        Effect = "Allow"
+        Action = [
+          "s3:GetObject",
+          "s3:PutObject",
+          "s3:DeleteObject",
+          "s3:ListBucket"
+        ]
+        Resource = [
+          "arn:aws:s3:::*terraform-state*",
+          "arn:aws:s3:::*terraform-state*/*"
+        ]
+      },
+      {
+        Effect = "Allow"
+        Action = [
+          "dynamodb:GetItem",
+          "dynamodb:PutItem",
+          "dynamodb:DeleteItem"
+        ]
+        Resource = "arn:aws:dynamodb:${var.aws_region}:${local.account_id}:table/*terraform-state-lock*"
       }
     ]
   })
