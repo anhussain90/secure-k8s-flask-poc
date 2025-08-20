@@ -85,15 +85,14 @@ resource "aws_iam_policy" "terraform_policy" {
           "iam:GetPolicy",
           "iam:GetPolicyVersion",
           "iam:GetOpenIDConnectProvider",
-          "iam:ListOpenIDConnectProviders",
-          "iam:ListRolePolicies",
+          "iam:List*",
           "iam:PassRole",
           "sts:GetCallerIdentity"
         ]
         Resource = "*"
       },
       {
-        Effect = "Allow"
+        Effect = "Allow" 
         Action = [
           "s3:GetObject",
           "s3:PutObject",
