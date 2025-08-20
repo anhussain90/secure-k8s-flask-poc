@@ -85,14 +85,40 @@ resource "aws_iam_policy" "terraform_policy" {
           "iam:GetPolicy",
           "iam:GetPolicyVersion",
           "iam:GetOpenIDConnectProvider",
-          "iam:List*",
+          "iam:ListAccessKeys",
+          "iam:ListAccountAliases",
+          "iam:ListAttachedGroupPolicies",
+          "iam:ListAttachedRolePolicies",
+          "iam:ListAttachedUserPolicies",
+          "iam:ListEntitiesForPolicy",
+          "iam:ListGroupPolicies",
+          "iam:ListGroups",
+          "iam:ListGroupsForUser",
+          "iam:ListInstanceProfiles",
+          "iam:ListInstanceProfilesForRole",
+          "iam:ListMFADevices",
+          "iam:ListOpenIDConnectProviders",
+          "iam:ListPolicies",
+          "iam:ListPolicyVersions",
+          "iam:ListRolePolicies",
+          "iam:ListRoles",
+          "iam:ListRoleTags",
+          "iam:ListSAMLProviders",
+          "iam:ListServerCertificates",
+          "iam:ListServiceSpecificCredentials",
+          "iam:ListSigningCertificates",
+          "iam:ListSSHPublicKeys",
+          "iam:ListUserPolicies",
+          "iam:ListUsers",
+          "iam:ListUserTags",
+          "iam:ListVirtualMFADevices",
           "iam:PassRole",
           "sts:GetCallerIdentity"
         ]
         Resource = "*"
       },
       {
-        Effect = "Allow" 
+        Effect = "Allow"
         Action = [
           "s3:GetObject",
           "s3:PutObject",
