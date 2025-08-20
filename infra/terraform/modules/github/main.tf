@@ -82,6 +82,8 @@ resource "aws_iam_policy" "terraform_policy" {
         Action = [
           "ecr:*",
           "iam:GetRole",
+          "iam:GetPolicy",
+          "iam:ListOpenIDConnectProviders",
           "iam:PassRole",
           "sts:GetCallerIdentity"
         ]
