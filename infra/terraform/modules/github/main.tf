@@ -86,6 +86,7 @@ resource "aws_iam_policy" "terraform_policy" {
           "iam:GetPolicyVersion",
           "iam:GetOpenIDConnectProvider",
           "iam:ListOpenIDConnectProviders",
+          "iam:ListRolePolicies",
           "iam:PassRole",
           "sts:GetCallerIdentity"
         ]
