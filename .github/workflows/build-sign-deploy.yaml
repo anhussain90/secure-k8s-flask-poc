@@ -46,7 +46,7 @@ jobs:
         run: |
           IMAGE_TAG="${{ secrets.ECR_REGISTRY }}/secure-flask-poc:${{ github.sha }}"
           
-          docker build -t ${IMAGE_TAG} -t ${LATEST_TAG} ./app
+          docker build -t ${IMAGE_TAG} ./app
           docker push ${IMAGE_TAG}
 
           # Get image digest
