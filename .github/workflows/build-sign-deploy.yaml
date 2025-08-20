@@ -45,11 +45,9 @@ jobs:
         id: build
         run: |
           IMAGE_TAG="${{ secrets.ECR_REGISTRY }}/secure-flask-poc:${{ github.sha }}"
-          LATEST_TAG="${{ secrets.ECR_REGISTRY }}/secure-flask-poc:latest"
           
           docker build -t ${IMAGE_TAG} -t ${LATEST_TAG} ./app
           docker push ${IMAGE_TAG}
-          docker push ${LATEST_TAG}
 
           # Get image digest
           DIGEST=$(docker inspect --format='{{index .RepoDigests 0}}' ${IMAGE_TAG} | cut -d'@' -f2)
