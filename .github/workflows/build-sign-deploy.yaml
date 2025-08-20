@@ -94,6 +94,11 @@ jobs:
       - name: Login to ECR
         uses: aws-actions/amazon-ecr-login@v2
 
+      - name: Debug Image Reference
+        run: |
+          echo "Image tag: ${{ needs.build-and-sign.outputs.image-tag }}"
+          echo "Image URI: ${{ needs.build-and-sign.outputs.image-uri }}"
+
       - name: Run Trivy Security Scan
         uses: aquasecurity/trivy-action@0.29.0
         with:
