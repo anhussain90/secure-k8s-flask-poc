@@ -57,6 +57,9 @@ jobs:
           echo "digest=${DIGEST}" >> $GITHUB_OUTPUT
           echo "image-uri=${IMAGE_URI}" >> $GITHUB_OUTPUT
           echo "image-tag=${IMAGE_TAG}" >> $GITHUB_OUTPUT
+          
+          echo "Built image: ${IMAGE_URI}"
+          echo "Image digest: ${DIGEST}"
 
       - name: Sign Image with Cosign
         run: |
@@ -77,9 +80,12 @@ jobs:
 
       - name: Verify Signature
         run: |
+          echo "Verifying image: ${{ steps.build.outputs.image-uri }}"
           cosign verify --certificate-identity-regexp="https://github.com/${{ github.repository }}" \
             --certificate-oidc-issuer=https://token.actions.githubusercontent.com \
             ${{ steps.build.outputs.image-uri }}
+        env:
+          COSIGN_EXPERIMENTAL: 1
 
   # security-scan:
   #   name: Security Scan
