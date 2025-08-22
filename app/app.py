@@ -21,6 +21,14 @@ def health_check():
         'service': 'secure-flask-poc',
         'version': os.getenv('APP_VERSION', '1.0.0')
     }), 200
+    
+@app.route('/ping')
+def ping_pong_check():
+    """PingPong check endpoint"""
+    return jsonify({
+        'status': 'pong',
+        'service': 'secure-flask-poc'
+    }), 200
 
 @app.route('/ready')
 def readiness_check():
@@ -35,9 +43,9 @@ def root():
     """Root endpoint"""
     return jsonify({
         'message': 'Secure Flask API PoC',
-        'endpoints': ['/healthz', '/ready']
+        'endpoints': ['/healthz', '/ping', '/ready']
     }), 200
 
 if __name__ == '__main__':
-    port = int(os.getenv('PORT', 80))
+    port = int(os.getenv('PORT', 8080))
     app.run(host='0.0.0.0', port=port, debug=False)
