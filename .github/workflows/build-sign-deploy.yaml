@@ -48,12 +48,11 @@ jobs:
           IMAGE_TAG="${{ github.sha }}"
           IMAGE_URI="${{ secrets.ECR_REGISTRY }}/secure-flask-poc:${IMAGE_TAG}"
           
-          # Build for AMD64 architecture
-          docker buildx build --platform linux/amd64 -t ${IMAGE_URI} ./app || exit 1
-          docker push ${IMAGE_URI} || exit 1
+          # Build and push for AMD64 architecture
+          docker buildx build --platform linux/amd64 --push -t ${IMAGE_URI} ./app || exit 1
 
-          # Get image digest
-          DIGEST=$(docker inspect --format='{{index .RepoDigests 0}}' ${IMAGE_URI} | cut -d'@' -f2)
+          # Get image digest from registry
+          DIGEST=$(docker buildx imagetools inspect ${IMAGE_URI} --format '{{json .}}' | jq -r '.manifest.digest')
           
           echo "digest=${DIGEST}" >> $GITHUB_OUTPUT
           echo "image-uri=${IMAGE_URI}" >> $GITHUB_OUTPUT
