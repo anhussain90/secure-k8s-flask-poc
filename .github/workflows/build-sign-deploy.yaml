@@ -63,8 +63,8 @@ jobs:
 
       - name: Sign Image with Cosign
         run: |
-          # Use keyless signing with GitHub OIDC
-          cosign sign --yes ${{ steps.build.outputs.image-uri }}
+          IMAGE_URI="${{ secrets.ECR_REGISTRY }}/secure-flask-poc:${{ github.sha }}"
+          cosign sign --yes ${IMAGE_URI}
         env:
           COSIGN_EXPERIMENTAL: 1
 
@@ -74,16 +74,17 @@ jobs:
 
       - name: Generate SBOM
         run: |
-          # Generate Software Bill of Materials
-          syft ${{ steps.build.outputs.image-uri }} -o spdx-json > sbom.json || exit 1
-          cosign attest --yes --predicate sbom.json ${{ steps.build.outputs.image-uri }} || exit 1
+          IMAGE_URI="${{ secrets.ECR_REGISTRY }}/secure-flask-poc:${{ github.sha }}"
+          syft ${IMAGE_URI} -o spdx-json > sbom.json || exit 1
+          cosign attest --yes --predicate sbom.json ${IMAGE_URI} || exit 1
 
       - name: Verify Signature
         run: |
-          echo "Verifying image: ${{ steps.build.outputs.image-uri }}"
+          IMAGE_URI="${{ secrets.ECR_REGISTRY }}/secure-flask-poc:${{ github.sha }}"
+          echo "Verifying image: ${IMAGE_URI}"
           cosign verify --certificate-identity-regexp="https://github.com/${{ github.repository }}" \
             --certificate-oidc-issuer=https://token.actions.githubusercontent.com \
-            ${{ steps.build.outputs.image-uri }}
+            ${IMAGE_URI}
         env:
           COSIGN_EXPERIMENTAL: 1
 
@@ -198,20 +199,23 @@ jobs:
 
       - name: Validate Image Signature
         run: |
+          IMAGE_URI="${{ secrets.ECR_REGISTRY }}/secure-flask-poc:${{ github.sha }}"
           cosign verify --certificate-identity-regexp="https://github.com/${{ github.repository }}" \
             --certificate-oidc-issuer=https://token.actions.githubusercontent.com \
-            ${{ needs.build-and-sign.outputs.image-uri }}
+            ${IMAGE_URI}
           echo "✅ Image signature validated successfully"
         env:
           COSIGN_EXPERIMENTAL: 1
 
       - name: Update ECS Task Definition
         run: |
+          IMAGE_URI="${{ secrets.ECR_REGISTRY }}/secure-flask-poc:${{ github.sha }}"
+          
           # Get current task definition
           TASK_DEF=$(aws ecs describe-task-definition --task-definition flask-app --region ${{ secrets.AWS_REGION }}) || exit 1
           
           # Update image URI
-          NEW_TASK_DEF=$(echo $TASK_DEF | jq --arg IMAGE "${{ needs.build-and-sign.outputs.image-uri }}" '.taskDefinition | .containerDefinitions[0].image = $IMAGE | del(.taskDefinitionArn) | del(.revision) | del(.status) | del(.requiresAttributes) | del(.placementConstraints) | del(.compatibilities) | del(.registeredAt) | del(.registeredBy)') || exit 1
+          NEW_TASK_DEF=$(echo $TASK_DEF | jq --arg IMAGE "${IMAGE_URI}" '.taskDefinition | .containerDefinitions[0].image = $IMAGE | del(.taskDefinitionArn) | del(.revision) | del(.status) | del(.requiresAttributes) | del(.placementConstraints) | del(.compatibilities) | del(.registeredAt) | del(.registeredBy)') || exit 1
           
           # Validate jq output
           if [ "$NEW_TASK_DEF" = "null" ] || [ -z "$NEW_TASK_DEF" ]; then
