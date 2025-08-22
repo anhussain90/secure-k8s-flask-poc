@@ -83,6 +83,18 @@ resource "aws_iam_policy" "terraform_policy" {
           "ecr:*",
           "ecs:*",
           "iam:*",
+          "ec2:DescribeVpcs",
+          "ec2:DescribeSubnets",
+          "ec2:DescribeAvailabilityZones",
+          "ec2:DescribeSecurityGroups",
+          "ec2:CreateSecurityGroup",
+          "ec2:DeleteSecurityGroup",
+          "ec2:AuthorizeSecurityGroupIngress",
+          "ec2:AuthorizeSecurityGroupEgress",
+          "ec2:RevokeSecurityGroupIngress",
+          "ec2:RevokeSecurityGroupEgress",
+          "elasticloadbalancing:*",
+          "logs:*",
           "sts:GetCallerIdentity"
         ]
         Resource = "*"
