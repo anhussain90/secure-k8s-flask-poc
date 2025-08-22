@@ -17,3 +17,4 @@ output "ecr_role_arn" {
   description = "GitHub Actions ECR role ARN"
   value       = module.github.ecr_role_arn
 }
+

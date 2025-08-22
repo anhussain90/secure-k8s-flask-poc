@@ -15,3 +15,15 @@ variable "github_repository" {
   type        = string
   default     = "anhussain90/secure-k8s-flask-poc"
 }
+
+variable "image_tag" {
+  description = "Docker image tag to deploy"
+  type        = string
+  default     = "port8080"
+}
+
+variable "certificate_arn" {
+  description = "ACM certificate ARN for HTTPS"
+  type        = string
+  default     = "XXXXXXXX"
+}
