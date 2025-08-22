@@ -9,24 +9,20 @@ WORKDIR /app
 COPY requirements.txt .
 RUN pip install --no-cache-dir --user -r requirements.txt
 
-# Production stage with distroless base
-FROM gcr.io/distroless/python3-debian12:nonroot
+# Production stage with slim Python
+FROM python:3.11-slim
 
 # Copy Python packages from builder
-COPY --from=builder /root/.local /home/nonroot/.local
+COPY --from=builder /root/.local /root/.local
 
 # Copy application
 WORKDIR /app
-COPY --chown=nonroot:nonroot app.py .
+COPY app.py .
 
 # Set environment
-ENV PATH=/home/nonroot/.local/bin:$PATH
-ENV PYTHONPATH=/home/nonroot/.local/lib/python3.11/site-packages
+ENV PATH=/root/.local/bin:$PATH
 ENV PORT=8080
 ENV PYTHONUNBUFFERED=1
-
-# Use non-root user
-USER nonroot
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
